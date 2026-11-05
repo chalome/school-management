@@ -1,0 +1,26 @@
+{% extends "core/base.html" %}
+{% block title %}{% if child %}Modifier le dossier{% else %}Nouvelle inscription{% endif %} | Petit Enfant Grand Cœur{% endblock %}
+{% block page_heading %}Inscription & admission{% endblock %}
+{% block content %}
+<section class="page-title"><div><h1>{% if child %}Modifier le dossier{% else %}Nouvelle inscription scolaire{% endif %}</h1><p>Année scolaire : {{ selected_school_year }}. Renseignez l’identité, les responsables et les besoins de santé de l’enfant.</p></div></section>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {% if form.non_field_errors or contact_formset.non_form_errors %}<div class="form-errors">{{ form.non_field_errors }}{{ contact_formset.non_form_errors }}</div>{% endif %}
+  <section class="form-section"><h2>1. Informations de l’enfant</h2><div class="form-grid">
+    {% for field in form %}{% if field.name == "father_first_name" %}</div></section><section class="form-section"><h2>2. Filiation & responsables légaux</h2><div class="form-grid">{% endif %}
+    {% if field.name == "blood_group" %}</div></section><section class="form-section"><h2>3. Santé, allergies & urgences</h2><div class="form-grid">{% endif %}
+    <div class="field {% if field.field.widget.input_type == 'checkbox' %}check-row{% endif %}"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}{% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}</div>
+    {% endfor %}
+  </div></section>
+  <section class="form-section"><h2>4. Contacts d’urgence & personnes autorisées</h2><p class="muted">Ajoutez les responsables, contacts d’urgence et personnes autorisées à récupérer l’enfant.</p>
+    {{ contact_formset.management_form }}
+    {% for contact_form in contact_formset %}
+      {% for hidden in contact_form.hidden_fields %}{{ hidden }}{% endfor %}
+      <div class="contact-form">
+        {% for field in contact_form.visible_fields %}<div class="field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}</div>{% endfor %}
+      </div>
+    {% endfor %}
+  </section>
+  <div class="actions"><a class="button secondary" href="{% if child %}{% url 'child_detail' child.pk %}{% else %}{% url 'child_list' %}{% endif %}">Annuler</a><button class="button" type="submit">Enregistrer le dossier</button></div>
+</form>
+{% endblock %}

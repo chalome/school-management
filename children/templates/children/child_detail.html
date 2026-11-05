@@ -1,0 +1,32 @@
+{% extends "core/base.html" %}
+{% block title %}Dossier de {{ child }} | Petit Enfant Grand Cœur{% endblock %}
+{% block page_heading %}Dossier électronique de l’enfant{% endblock %}
+{% block content %}
+<section class="page-title"><div><span class="eyebrow">{{ child.student_number }} · {{ selected_school_year }}</span><h1>{{ child.first_name }} {{ child.middle_name }} {{ child.last_name }}</h1><p>{{ enrollment.classroom|default:"Non inscrit pour cette année scolaire" }} · Dossier créé le {{ child.registration_date|date:"d/m/Y" }}</p></div><div class="actions"><a class="button secondary" href="{% url 'child_update' child.pk %}">Modifier le dossier</a><button class="button secondary" type="button" onclick="window.print()">Imprimer la fiche</button><a class="button" href="{% url 'payment_create' %}">＋ Enregistrer un paiement</a></div></section>
+<div class="grid two-column">
+  <div class="stack">
+    <article class="panel"><div class="panel-heading"><h2>Identification & scolarité</h2></div><div class="panel-body"><div class="detail-grid">
+      <div class="detail-item"><small>Date de naissance</small><strong>{{ child.birth_date|date:"d/m/Y" }}</strong></div><div class="detail-item"><small>Sexe</small><strong>{{ child.get_sex_display|default:"—" }}</strong></div>
+      <div class="detail-item"><small>Lieu de naissance</small><strong>{{ child.place_of_birth|default:"—" }}</strong></div><div class="detail-item"><small>Nationalité</small><strong>{{ child.nationality }}</strong></div>
+      <div class="detail-item"><small>Langues</small><strong>{{ child.spoken_languages|default:"—" }}</strong></div><div class="detail-item"><small>Formule d’accueil</small><strong>{{ enrollment.get_attendance_formula_display|default:"—" }}</strong></div>
+    </div></div></article>
+    <article class="panel"><div class="panel-heading"><h2>Parents & responsables</h2></div><div class="panel-body"><div class="detail-grid">
+      <div class="detail-item"><small>Père / responsable 1</small><strong>{{ child.father_first_name }} {{ child.father_last_name|default:"—" }}</strong><small>{{ child.father_phone }}{% if child.father_email %} · {{ child.father_email }}{% endif %}</small></div>
+      <div class="detail-item"><small>Mère / responsable 2</small><strong>{{ child.mother_first_name }} {{ child.mother_last_name|default:"—" }}</strong><small>{{ child.mother_phone }}{% if child.mother_email %} · {{ child.mother_email }}{% endif %}</small></div>
+    </div>{% for contact in child.contacts.all %}<div class="detail-item"><small>{{ contact.get_contact_type_display }} · {{ contact.relationship }}</small><strong>{{ contact.full_name }}</strong><small>{{ contact.phone }}{% if contact.email %} · {{ contact.email }}{% endif %}</small></div>{% empty %}<p class="muted">Aucun contact supplémentaire enregistré.</p>{% endfor %}</div></article>
+    <article class="panel"><div class="panel-heading"><h2>Paiements — {{ selected_school_year }}</h2></div><div class="table-wrap"><table><thead><tr><th>Période</th><th>Frais</th><th>Dû</th><th>Payé</th><th>État</th></tr></thead><tbody>{% for payment in payments %}<tr><td>{{ payment.month }}</td><td>{{ payment.get_fee_type_display }}</td><td>{{ payment.total_due|floatformat:0 }} Fbu</td><td>{{ payment.amount_paid|floatformat:0 }} Fbu</td><td>{{ payment.get_status_display }}</td></tr>{% empty %}<tr><td colspan="5" class="empty-state">Aucun paiement enregistré pour cette année scolaire.</td></tr>{% endfor %}</tbody></table></div></article>
+  </div>
+  <div class="stack">
+    <article class="panel"><div class="panel-heading"><h2>Santé & urgences médicales</h2></div><div class="panel-body">
+      <div class="detail-item"><small>Vaccination</small><strong>{% if child.is_vaccinated %}Vaccinations à jour{% else %}À vérifier{% endif %}</strong></div>
+      <div class="detail-item"><small>Groupe sanguin</small><strong>{{ child.get_blood_group_display|default:"Non renseigné" }}</strong></div>
+      <div class="detail-item"><small>Allergies</small><strong>{{ child.allergies_details|default:"Aucune déclarée" }}</strong></div>
+      <div class="detail-item"><small>Antécédents de santé</small><strong>{{ child.health_issues_details|default:"Aucun déclaré" }}</strong></div>
+      <div class="detail-item"><small>Médication en cours</small><strong>{{ child.medication_details|default:"Aucune déclarée" }}</strong></div>
+      <div class="detail-item"><small>Instructions d’urgence</small><strong>{{ child.emergency_medical_instructions|default:"—" }}</strong></div>
+      <div class="detail-item"><small>Pédiatre</small><strong>{{ child.pediatrician_name|default:"—" }}</strong><small>{{ child.pediatrician_phone }}</small></div>
+      <div class="detail-item"><small>Hôpital préféré</small><strong>{{ child.preferred_hospital }}</strong></div>
+    </div></article>
+  </div>
+</div>
+{% endblock %}

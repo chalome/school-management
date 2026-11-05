@@ -1,0 +1,17 @@
+{% extends "core/base.html" %}
+{% load payment_months %}
+{% block title %}Reçu {{ payment.receipt_number }} | Petit Enfant Grand Cœur{% endblock %}
+{% block page_heading %}Détail du paiement{% endblock %}
+{% block content %}
+<section class="page-title"><div><span class="eyebrow">REÇU {{ payment.receipt_number|default:"NON GÉNÉRÉ" }}</span><h1>Paiement scolaire</h1><p>{{ payment.child }} · {{ payment.month|display_month }}</p></div><div class="actions"><a class="button secondary" href="{% url 'payment_update' payment.pk %}">Modifier</a><button class="button" type="button" onclick="window.print()">Imprimer le reçu</button><a class="button secondary" href="{% url 'payment_list' %}">Retour aux paiements</a></div></section>
+<article class="panel"><div class="panel-heading"><h2>Reçu de paiement</h2><span class="pill {% if payment.status == 'paid' %}success{% elif payment.status == 'overdue' %}danger{% else %}warning{% endif %}">{{ payment.get_status_display }}</span></div><div class="panel-body"><div class="detail-grid">
+  <div class="detail-item"><small>Enfant</small><strong>{{ payment.child }}</strong><small>{{ payment.child.student_number }}</small></div><div class="detail-item"><small>Année scolaire</small><strong>{{ payment.school_year }}</strong></div><div class="detail-item"><small>Classe</small><strong>{{ payment.enrollment.classroom|default:"—" }}</strong></div>
+  <div class="detail-item"><small>Nature des frais</small><strong>{{ payment.get_fee_type_display }}</strong></div>  <div class="detail-item"><small>Période</small><strong>{{ payment.month|display_month }}</strong></div>
+  <div class="detail-item"><small>Montant dû</small><strong>{{ payment.amount_due|floatformat:0 }} Fbu</strong></div><div class="detail-item"><small>Pénalité</small><strong>{{ payment.late_penalty|floatformat:0 }} Fbu</strong></div>
+  <div class="detail-item"><small>Montant encaissé</small><strong>{{ payment.amount_paid|floatformat:0 }} Fbu</strong></div><div class="detail-item"><small>Solde restant</small><strong>{{ payment.balance_due|floatformat:0 }} Fbu</strong></div>
+  <div class="detail-item"><small>Date d’encaissement</small><strong>{{ payment.payment_date|date:"d/m/Y"|default:"—" }}</strong></div><div class="detail-item"><small>Mode de règlement</small><strong>{{ payment.get_payment_method_display|default:"—" }}</strong></div>
+  <div class="detail-item"><small>Référence transaction</small><strong>{{ payment.transaction_reference|default:"—" }}</strong></div><div class="detail-item"><small>Enfant / dossier</small><strong><a href="{% url 'child_detail' payment.child.pk %}">Consulter la fiche →</a></strong></div>
+  {% if payment.proof_of_payment %}<div class="detail-item"><small>Justificatif</small><strong><a href="{{ payment.proof_of_payment.url }}">Télécharger</a></strong></div>{% endif %}
+  {% if payment.note %}<div class="detail-item"><small>Note interne</small><strong>{{ payment.note }}</strong></div>{% endif %}
+</div></div></article>
+{% endblock %}

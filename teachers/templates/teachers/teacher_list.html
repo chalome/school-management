@@ -1,0 +1,11 @@
+{% extends "core/base.html" %}
+{% block title %}Corps enseignant | Petit Enfant Grand Cœur{% endblock %}
+{% block page_heading %}Classes & enseignants{% endblock %}
+{% block content %}
+<section class="page-title"><div><h1>Registre du corps enseignant</h1><p>Personnel pédagogique, qualifications et affectations.</p></div><div class="actions"><a class="button" href="{% url 'teacher_create' %}">＋ Ajouter un enseignant</a></div></section>
+<form class="filter-bar" method="get"><div class="field"><label for="q">Recherche</label><input id="q" name="q" value="{{ query }}" placeholder="Nom, matricule ou qualification"></div><button class="button" type="submit">Rechercher</button>{% if query %}<a class="button secondary" href="{% url 'teacher_list' %}">Réinitialiser</a>{% endif %}</form>
+<article class="panel"><div class="table-wrap"><table><thead><tr><th>Enseignant</th><th>Matricule</th><th>Fonction</th><th>Classe(s)</th><th>Téléphone</th><th>Qualifications</th><th></th></tr></thead><tbody>
+{% for teacher in teachers %}<tr><td><strong>{{ teacher.title }} {{ teacher.first_name }} {{ teacher.last_name }}</strong><small>{{ teacher.email|default:"Aucun e-mail" }}</small></td><td>{{ teacher.employee_number }}</td><td>{{ teacher.get_role_display }}</td><td>{% for classroom in teacher.classes.all %}<span class="pill">{{ classroom.name }}</span> {% empty %}<span class="muted">Non affecté</span>{% endfor %}</td><td>{{ teacher.phone }}</td><td>{{ teacher.qualification|default:"—" }}</td><td><a href="{% url 'teacher_detail' teacher.pk %}">Fiche →</a></td></tr>{% empty %}<tr><td colspan="7" class="empty-state">Aucun enseignant enregistré.</td></tr>{% endfor %}
+</tbody></table></div></article>
+{% if page_obj.has_other_pages %}<nav class="pagination" aria-label="Pagination">{% if page_obj.has_previous %}<a class="button secondary" href="?q={{ query|urlencode }}&page={{ page_obj.previous_page_number }}">← Précédent</a>{% endif %}<span>Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_next %}<a class="button secondary" href="?q={{ query|urlencode }}&page={{ page_obj.next_page_number }}">Suivant →</a>{% endif %}</nav>{% endif %}
+{% endblock %}

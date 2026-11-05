@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+{% block title %}Fiche de {{ teacher }} | Petit Enfant Grand Cœur{% endblock %}
+{% block page_heading %}Fiche enseignant{% endblock %}
+{% block content %}
+<section class="page-title"><div><span class="eyebrow">{{ teacher.employee_number }}</span><h1>{{ teacher.title }} {{ teacher.first_name }} {{ teacher.last_name }}</h1><p>{{ teacher.get_role_display }}{% for classroom in teacher.classes.all %} · {{ classroom.name }}{% endfor %}</p></div><div class="actions"><a class="button secondary" href="{% url 'teacher_update' teacher.pk %}">Modifier le dossier</a><a class="button secondary" href="{% url 'teacher_list' %}">Retour au registre</a></div></section>
+<div class="grid two-column">
+  <article class="panel"><div class="panel-heading"><h2>Coordonnées directes</h2></div><div class="panel-body"><div class="detail-grid">
+    <div class="detail-item"><small>E-mail professionnel</small><strong>{{ teacher.email|default:"—" }}</strong></div><div class="detail-item"><small>Téléphone</small><strong>{{ teacher.phone }}</strong></div>
+    <div class="detail-item"><small>Adresse</small><strong>{{ teacher.address|default:"—" }}</strong></div><div class="detail-item"><small>Date d’arrivée</small><strong>{{ teacher.hire_date|date:"d/m/Y" }}</strong></div>
+    <div class="detail-item"><small>Compte de connexion</small><strong>{{ teacher.user|default:"Aucun compte associé" }}</strong></div><div class="detail-item"><small>Contact d’urgence</small><strong>{{ teacher.emergency_contact|default:"—" }}</strong></div>
+  </div></div></article>
+  <article class="panel"><div class="panel-heading"><h2>Qualifications & habilitations</h2></div><div class="panel-body">
+    <div class="detail-item"><small>Diplôme principal</small><strong>{{ teacher.qualification|default:"—" }}</strong></div><div class="detail-item"><small>Spécialité</small><strong>{{ teacher.specialty|default:"—" }}</strong></div><div class="detail-item"><small>Langues d’enseignement</small><strong>{{ teacher.teaching_languages|default:"—" }}</strong></div>
+    <div class="check-row">{% if teacher.has_pediatric_first_aid %}<span class="pill success">Premiers secours pédiatriques</span>{% endif %}{% if teacher.has_emergency_plan_training %}<span class="pill success">Protocoles PAI</span>{% endif %}{% if teacher.has_fire_safety_training %}<span class="pill success">Sécurité incendie</span>{% endif %}{% if teacher.medical_clearance %}<span class="pill success">Aptitude médicale</span>{% endif %}</div>
+  </div></article>
+</div>
+<article class="panel" style="margin-top:18px"><div class="panel-heading"><h2>Élèves des classes affectées</h2></div><div class="table-wrap"><table><thead><tr><th>Enfant</th><th>Matricule</th><th>Classe</th></tr></thead><tbody>{% for classroom in teacher.classes.all %}{% for child in classroom.children.all %}<tr><td><a href="{% url 'child_detail' child.pk %}">{{ child }}</a></td><td>{{ child.student_number }}</td><td>{{ classroom.name }}</td></tr>{% empty %}<tr><td colspan="3" class="empty-state">Aucun enfant dans cette salle.</td></tr>{% endfor %}{% empty %}<tr><td colspan="3" class="empty-state">Aucune salle n’est affectée à cet enseignant.</td></tr>{% endfor %}</tbody></table></div></article>
+{% endblock %}

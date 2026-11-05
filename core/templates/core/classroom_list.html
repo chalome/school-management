@@ -1,0 +1,10 @@
+{% extends "core/base.html" %}
+{% block title %}Classes & enseignants | Petit Enfant Grand Cœur{% endblock %}
+{% block page_heading %}Classes & enseignants{% endblock %}
+{% block content %}
+<section class="page-title"><div><h1>Classes & enseignants</h1><p>Effectifs pour {{ selected_school_year }} et affectation du personnel.</p></div><div class="actions"><a class="button secondary" href="{% url 'teacher_list' %}">Voir les enseignants</a><a class="button" href="{% url 'classroom_create' %}">＋ Configurer une salle</a></div></section>
+<section class="grid metrics"><article class="card metric"><span class="metric-label">Salles configurées</span><strong class="metric-value">{{ classrooms|length }}</strong></article></section>
+<article class="panel"><div class="table-wrap"><table><thead><tr><th>Salle</th><th>Section</th><th>Enseignant référent</th><th>Effectif</th><th>Capacité</th><th>État</th><th></th></tr></thead><tbody>
+{% for classroom in classrooms %}<tr><td><strong>{{ classroom.name }}</strong></td><td>{{ classroom.get_section_type_display }}</td><td>{% if classroom.teacher %}<a href="{% url 'teacher_detail' classroom.teacher.pk %}">{{ classroom.teacher }}</a>{% else %}<span class="muted">À affecter</span>{% endif %}</td><td>{{ classroom.student_count }}</td><td>{{ classroom.capacity }}</td><td>{% if classroom.is_active %}<span class="pill success">Active</span>{% else %}<span class="pill">Inactive</span>{% endif %}</td><td><a href="{% url 'classroom_update' classroom.pk %}">Modifier</a></td></tr>{% empty %}<tr><td colspan="7" class="empty-state">Aucune salle définie.</td></tr>{% endfor %}
+</tbody></table></div></article>
+{% endblock %}

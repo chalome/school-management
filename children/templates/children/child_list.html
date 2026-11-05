@@ -1,0 +1,27 @@
+{% extends "core/base.html" %}
+{% block title %}Répertoire des enfants | Petit Enfant Grand Cœur{% endblock %}
+{% block page_heading %}Liste des enfants{% endblock %}
+{% block content %}
+<section class="page-title"><div><h1>Répertoire des enfants</h1><p>Inscriptions pour l’année scolaire {{ selected_school_year }}.</p></div><div class="actions"><a class="button" href="{% url 'child_create' %}">＋ Inscrire un enfant</a></div></section>
+<form class="filter-bar" method="get">
+  <div class="field"><label for="q">Recherche</label><input id="q" name="q" value="{{ query }}" placeholder="Nom, matricule ou téléphone"></div>
+  <div class="field"><label for="classroom">Classe</label><select id="classroom" name="classroom"><option value="">Toutes les classes</option>{% for classroom in classrooms %}<option value="{{ classroom.pk }}" {% if selected_classroom == classroom.pk|stringformat:"s" %}selected{% endif %}>{{ classroom.name }}</option>{% endfor %}</select></div>
+  <label class="check-row"><input type="checkbox" name="medical" value="1" {% if medical_only %}checked{% endif %}> Alertes médicales uniquement</label>
+  <button class="button" type="submit">Filtrer</button>
+  {% if query or selected_classroom or medical_only %}<a class="button secondary" href="{% url 'child_list' %}">Réinitialiser</a>{% endif %}
+</form>
+<article class="panel"><div class="table-wrap"><table><thead><tr><th>Enfant</th><th>Matricule</th><th>Classe</th><th>Date de naissance</th><th>Parent / contact</th><th>Suivi santé</th><th></th></tr></thead><tbody>
+{% for enrollment in children %}<tr>
+  <td><strong>{{ enrollment.child.first_name }} {{ enrollment.child.middle_name }} {{ enrollment.child.last_name }}</strong><small>Inscrit le {{ enrollment.child.registration_date|date:"d/m/Y" }}</small></td>
+  <td>{{ enrollment.child.student_number }}</td><td>{{ enrollment.classroom|default:"Non affecté" }}</td><td>{{ enrollment.child.birth_date|date:"d/m/Y" }}</td>
+  <td>{{ enrollment.child.father_phone|default:enrollment.child.mother_phone|default:"—" }}</td>
+  <td>{% if enrollment.child.has_allergies or enrollment.child.has_health_issues %}<span class="pill warning">À surveiller</span>{% else %}<span class="pill success">Aucune alerte</span>{% endif %}</td>
+  <td><a href="{% url 'child_detail' enrollment.child.pk %}">Fiche →</a></td>
+</tr>{% empty %}<tr><td colspan="7" class="empty-state">Aucun enfant ne correspond à la recherche.</td></tr>{% endfor %}
+</tbody></table></div></article>
+{% if page_obj.has_other_pages %}<nav class="pagination" aria-label="Pagination">
+  {% if page_obj.has_previous %}<a class="button secondary" href="?q={{ query|urlencode }}&classroom={{ selected_classroom }}{% if medical_only %}&medical=1{% endif %}&page={{ page_obj.previous_page_number }}">← Précédent</a>{% endif %}
+  <span>Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}<a class="button secondary" href="?q={{ query|urlencode }}&classroom={{ selected_classroom }}{% if medical_only %}&medical=1{% endif %}&page={{ page_obj.next_page_number }}">Suivant →</a>{% endif %}
+</nav>{% endif %}
+{% endblock %}

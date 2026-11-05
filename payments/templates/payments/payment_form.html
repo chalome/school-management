@@ -1,0 +1,14 @@
+{% extends "core/base.html" %}
+{% block title %}Enregistrer un paiement | Petit Enfant Grand Cœur{% endblock %}
+{% block page_heading %}Frais & paiements{% endblock %}
+{% block content %}
+<section class="page-title"><div><h1>{% if payment %}Modifier le paiement{% else %}Enregistrement d’un paiement scolaire{% endif %}</h1><p>Année scolaire : {{ form_school_year }}. Associez un frais à un enfant et conservez les informations de traçabilité.</p></div></section>
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
+  {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
+  <section class="form-section"><h2>Élève & nature des frais</h2><div class="form-grid">
+    {% for field in form %}{% if field.name == "amount_due" %}</div></section><section class="form-section"><h2>Montants & période</h2><div class="form-grid">{% endif %}{% if field.name == "payment_date" %}</div></section><section class="form-section"><h2>Mode de règlement & traçabilité</h2><div class="form-grid">{% endif %}
+    <div class="field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}{% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}</div>{% endfor %}
+  </div></section>
+  <div class="actions"><a class="button secondary" href="{% if payment %}{% url 'payment_detail' payment.pk %}{% else %}{% url 'payment_list' %}{% endif %}">Annuler</a><button class="button" type="submit">Valider le paiement</button></div>
+</form>
+{% endblock %}
