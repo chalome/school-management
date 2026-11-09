@@ -38,6 +38,17 @@ class PaymentForm(forms.ModelForm):
     def __init__(self, *args, school_year=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.school_year = school_year or active_school_year()
+        fee_type_choices = list(MonthlyFeePayment.FeeType.choices[:5])
+        if (
+            self.instance
+            and self.instance.pk
+            and self.instance.fee_type
+            not in {value for value, _label in fee_type_choices}
+        ):
+            fee_type_choices.append(
+                (self.instance.fee_type, self.instance.get_fee_type_display())
+            )
+        self.fields['fee_type'].choices = fee_type_choices
         self.fields['child'].queryset = Child.objects.filter(
             enrollments__school_year=self.school_year,
         ).distinct()

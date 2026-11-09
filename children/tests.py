@@ -57,7 +57,10 @@ class ChildModelTests(TestCase):
             self.client.get(reverse('child_detail', args=[child.pk])).status_code,
             200,
         )
-        self.assertEqual(self.client.get(reverse('child_create')).status_code, 200)
+        response = self.client.get(reverse('child_create'))
+        self.assertEqual(response.status_code, 200)
+        page = response.content.decode()
+        self.assertLess(page.index('name="classroom"'), page.index('3. Santé'))
 
     def test_registration_saves_a_child_and_authorized_pickup_contact(self):
         self.client.force_login(

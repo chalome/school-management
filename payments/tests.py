@@ -98,7 +98,7 @@ class MonthlyFeePaymentModelTests(TestCase):
             {
                 'child': str(self.child.pk),
                 'month': '2026-11',
-                'fee_type': MonthlyFeePayment.FeeType.CANTEEN,
+                'fee_type': MonthlyFeePayment.FeeType.MINERVAL,
                 'amount_due': '80000',
                 'amount_paid': '40000',
                 'late_penalty': '0',
@@ -133,6 +133,35 @@ class MonthlyFeePaymentModelTests(TestCase):
         self.assertIn(current_value, choices)
         self.assertIn(existing_value, dict(edit_form.fields['month'].choices))
         self.assertEqual(month_label('2026-11'), 'Novembre 2026')
+
+    def test_fee_type_choices_match_the_payment_form_categories(self):
+        form = PaymentForm()
+
+        self.assertEqual(
+            list(form.fields['fee_type'].choices),
+            [
+                ('registration', 'Inscription'),
+                ('materials', 'Matériels'),
+                ('uniform', 'Uniforme'),
+                ('minerval', 'Minerval'),
+                ('other', 'Autres frais'),
+            ],
+        )
+
+    def test_editing_legacy_fee_keeps_its_existing_value_available(self):
+        payment = MonthlyFeePayment.objects.create(
+            child=self.child,
+            month='2019-03',
+            fee_type=MonthlyFeePayment.FeeType.CANTEEN,
+            amount_due=Decimal('50000.00'),
+        )
+
+        form = PaymentForm(instance=payment)
+
+        self.assertIn(
+            (MonthlyFeePayment.FeeType.CANTEEN, 'Cantine'),
+            list(form.fields['fee_type'].choices),
+        )
 
     def test_payment_list_month_filter_uses_exact_month(self):
         self.client.force_login(

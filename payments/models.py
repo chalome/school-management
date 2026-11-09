@@ -14,11 +14,17 @@ def generate_receipt_number():
 
 class MonthlyFeePayment(models.Model):
     class FeeType(models.TextChoices):
+        REGISTRATION = 'registration', 'Inscription'
+        MATERIALS = 'materials', 'Matériels'
+        UNIFORM = 'uniform', 'Uniforme'
+        MINERVAL = 'minerval', 'Minerval'
+        OTHER = 'other', 'Autres frais'
+
+        # Keep legacy values readable while existing payment records are retained.
         TUITION = 'tuition', 'Écolage'
         CANTEEN = 'canteen', 'Cantine'
         AFTER_SCHOOL = 'after_school', 'Garderie périscolaire'
         INSURANCE = 'insurance', 'Assurance et carnet'
-        OTHER = 'other', 'Autres frais'
 
     class Method(models.TextChoices):
         CASH = 'cash', 'Espèces'
@@ -48,7 +54,7 @@ class MonthlyFeePayment(models.Model):
     fee_type = models.CharField(
         max_length=20,
         choices=FeeType.choices,
-        default=FeeType.TUITION,
+        default=FeeType.MINERVAL,
     )
     amount_due = models.DecimalField(
         max_digits=10,

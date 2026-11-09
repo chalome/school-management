@@ -24,12 +24,24 @@ class UsernameOrEmailAuthenticationForm(AuthenticationForm):
 class UserDetailsForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'email')
+        fields = ('username', 'first_name', 'last_name', 'email')
         labels = {
+            'username': "Nom d'utilisateur",
             'first_name': 'Prénom',
             'last_name': 'Nom de famille',
             'email': 'Adresse e-mail institutionnelle',
         }
+
+    def clean_username(self):
+        username = self.cleaned_data['username']
+        duplicates = User._default_manager.filter(username__iexact=username).exclude(
+            pk=self.instance.pk
+        )
+        if duplicates.exists():
+            raise forms.ValidationError(
+                "Ce nom d'utilisateur est déjà associé à un autre compte."
+            )
+        return username
 
     def clean_email(self):
         email = self.cleaned_data['email']

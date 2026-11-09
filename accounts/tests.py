@@ -43,6 +43,7 @@ class AuthenticationUrlTests(TestCase):
         response = self.client.post(
             reverse('profile'),
             {
+                'username': 'clotilde-n',
                 'first_name': 'Clotilde',
                 'last_name': 'Nizigiyimana',
                 'email': 'clotilde@example.bi',
@@ -55,5 +56,40 @@ class AuthenticationUrlTests(TestCase):
 
         self.assertRedirects(response, reverse('profile'))
         user.refresh_from_db()
+        self.assertEqual(user.username, 'clotilde-n')
         self.assertEqual(user.first_name, 'Clotilde')
         self.assertEqual(user.staff_profile.phone, '+257 79 00 00 00')
+
+    def test_profile_rejects_a_username_used_by_another_account(self):
+        user_model = get_user_model()
+        user = user_model.objects.create_user(
+            username='clotilde',
+            password='SecureTestPass123!',
+        )
+        user_model.objects.create_user(
+            username='another-user',
+            password='SecureTestPass123!',
+        )
+        self.client.force_login(user)
+
+        response = self.client.post(
+            reverse('profile'),
+            {
+                'username': 'another-user',
+                'first_name': '',
+                'last_name': '',
+                'email': '',
+                'unit': StaffProfile.Unit.MANAGEMENT,
+                'title': '',
+                'phone': '',
+                'language': StaffProfile.Language.FRENCH,
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(
+            "Ce nom d'utilisateur est déjà associé",
+            response.context['user_form'].errors['username'][0],
+        )
+        user.refresh_from_db()
+        self.assertEqual(user.username, 'clotilde')

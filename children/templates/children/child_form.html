@@ -7,9 +7,13 @@
   {% csrf_token %}
   {% if form.non_field_errors or contact_formset.non_form_errors %}<div class="form-errors">{{ form.non_field_errors }}{{ contact_formset.non_form_errors }}</div>{% endif %}
   <section class="form-section"><h2>1. Informations de l’enfant</h2><div class="form-grid">
+    <div class="field"><label for="{{ form.classroom.id_for_label }}">{{ form.classroom.label }}</label>{{ form.classroom }}{{ form.classroom.errors }}{% if form.classroom.help_text %}<span class="helptext">{{ form.classroom.help_text }}</span>{% endif %}</div>
+    <div class="field"><label for="{{ form.attendance_formula.id_for_label }}">{{ form.attendance_formula.label }}</label>{{ form.attendance_formula }}{{ form.attendance_formula.errors }}{% if form.attendance_formula.help_text %}<span class="helptext">{{ form.attendance_formula.help_text }}</span>{% endif %}</div>
     {% for field in form %}{% if field.name == "father_first_name" %}</div></section><section class="form-section"><h2>2. Filiation & responsables légaux</h2><div class="form-grid">{% endif %}
     {% if field.name == "blood_group" %}</div></section><section class="form-section"><h2>3. Santé, allergies & urgences</h2><div class="form-grid">{% endif %}
+    {% if field.name != "classroom" and field.name != "attendance_formula" %}
     <div class="field {% if field.field.widget.input_type == 'checkbox' %}check-row{% endif %}"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}{% if field.help_text %}<span class="helptext">{{ field.help_text }}</span>{% endif %}</div>
+    {% endif %}
     {% endfor %}
   </div></section>
   <section class="form-section"><h2>4. Contacts d’urgence & personnes autorisées</h2><p class="muted">Ajoutez les responsables, contacts d’urgence et personnes autorisées à récupérer l’enfant.</p>
